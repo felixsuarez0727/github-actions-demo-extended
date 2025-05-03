@@ -21,10 +21,10 @@ jobs:
         run: dotnet nuget remove source github || true
 
       - name: Simulate restoring dependencies
-        run: echo "Simulating: dotnet restore"
+        run: echo "Simulating dotnet restore"
 
       - name: Simulate running tests
-        run: echo "Simulating: dotnet test"
+        run: echo "Simulating dotnet test"
 
       - name: Install the dotnet-ef tool
         run: dotnet tool install --global dotnet-ef || true
@@ -39,11 +39,11 @@ jobs:
         run: echo "Stopping service (simulated)"
 
       - name: Clear the target directory
-        run: echo "Simulating: rm -rf ./publish"
+        run: echo "Simulating rm -rf ./publish"
 
       - name: Publish and deploy to server (simulado)
         run: |
-          echo "Simulating: dotnet publish -c Release -o ./publish"
+          echo "Simulating dotnet publish -c Release -o ./publish"
           echo "Simulated deployment to server..."
 
       - name: Start the service (simulado)
