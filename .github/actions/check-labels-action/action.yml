@@ -26,11 +26,13 @@ runs:
         PR_LABELS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
           "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/labels")
 
-        # Construir array JSON con jq
+        echo "DEBUG: Labels JSON => $PR_LABELS"
+        echo "DEBUG: PR_NUMBER = $PR_NUMBER"
+      
         ENVIRONMENTS=$(echo '[]' | jq -c '
           . += if $labels | tostring | contains("Avalon") then ["production-avalon"] else [] end |
           . += if $labels | tostring | contains("Zircon") then ["production-zircon"] else [] end
         ' --arg labels "$PR_LABELS")
 
-        # Establecer output con formato JSON
+        echo "Environments: $ENVIRONMENTS"
         echo "environments=$ENVIRONMENTS" >> $GITHUB_OUTPUT

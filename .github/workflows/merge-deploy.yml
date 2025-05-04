@@ -24,12 +24,10 @@ jobs:
       - name: Set up environments for matrix
         id: setup_matrix
         run: |
-          # Si environments es vacío o [], usar string vacío para evitar error de matriz vacía
           if [[ "${{ steps.check_labels.outputs.environments }}" == "[]" || "${{ steps.check_labels.outputs.environments }}" == "" ]]; then
             echo "No environments to deploy"
             echo "matrix_json={\"include\":[]}" >> $GITHUB_OUTPUT
           else
-            # Construir JSON para matriz
             MATRIX=$(echo "${{ steps.check_labels.outputs.environments }}" | jq -c '{include: [.[] | {environment: .}]}')
             echo "matrix_json=$MATRIX" >> $GITHUB_OUTPUT
           fi
