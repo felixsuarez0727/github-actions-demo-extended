@@ -8,6 +8,9 @@ on:
       - 'backend/**'
 
 jobs:
-  call-notify:
-    uses: ./.github/workflows/notify.yml
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/notify-team
 
