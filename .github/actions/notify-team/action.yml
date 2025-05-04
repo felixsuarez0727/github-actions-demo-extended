@@ -1,9 +1,0 @@
-name: Notify Team
-
-description: Custom action to notify the team
-
-runs:
-  using: "composite"
-  steps:
-    - run: echo "Changes detected. Notify team via email."
-      shell: bash

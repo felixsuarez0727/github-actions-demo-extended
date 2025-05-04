@@ -1,0 +1,24 @@
+# For ussage with reusable workflows
+name: Notify Team
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+    outputs:
+      confirmation:
+        description: Confirmation message
+        value: ${{ jobs.notify.outputs.confirmation }}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    outputs:
+      confirmation: ${{ steps.set-output.outputs.value }}
+    steps:
+      
+      - name: Set output
+        id: set-output
+        run: echo "value=Notification sent ${{ inputs.message }}" >> $GITHUB_OUTPUT

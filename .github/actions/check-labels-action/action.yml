@@ -1,0 +1,40 @@
+name: 'Check PR Labels'
+description: 'Check if PR has required labels for deployment'
+
+inputs:
+  pr_number:
+    description: 'The pull request number'
+    required: true
+    type: integer
+
+outputs:
+  environments:
+    description: 'List of environments to deploy'
+
+runs:
+  using: 'bash'
+  steps:
+    - name: Get PR labels from GitHub API
+      id: pr_labels
+      run: |
+        PR_LABELS=$(curl -s \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ inputs.pr_number }}/labels)
+
+        ENVIRONMENTS=""
+
+        if echo "$PR_LABELS" | grep -q '"name": "Avalon"'; then
+          ENVIRONMENTS="production-avalon"
+        fi
+
+        if echo "$PR_LABELS" | grep -q '"name": "Zircon"'; then
+          ENVIRONMENTS="$ENVIRONMENTS production-zircon"
+        fi
+
+        if [[ -z "$ENVIRONMENTS" ]]; then
+          echo "❌ No valid label found. The PR must have 'Avalon' or 'Zircon' label."
+          exit 1
+        fi
+
+        echo "Environments: $ENVIRONMENTS"
+        echo "::set-output name=environments::$ENVIRONMENTS"
