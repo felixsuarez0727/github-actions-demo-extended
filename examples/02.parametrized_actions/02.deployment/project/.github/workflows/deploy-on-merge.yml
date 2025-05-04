@@ -21,7 +21,7 @@ jobs:
       - name: Deploy to ${{ inputs.environment }}
         run: |
           echo "🚀 Deploying to ${{ inputs.environment }} environment..."
-          
+
       - name: Set output status
         id: set-status
         run: echo "value=success" >> $GITHUB_OUTPUT
