@@ -29,7 +29,6 @@ jobs:
           echo "Is empty: '${{ steps.check_labels.outputs.environments == '' }}'"
           echo "Is []?: '${{ steps.check_labels.outputs.environments == '[]' }}'"
   
-  # Job para desplegar a Avalon si se detecta esa etiqueta
   deploy-avalon:
     needs: deploy-if-merged
     if: contains(needs.deploy-if-merged.outputs.environments, 'production-avalon')
@@ -43,7 +42,6 @@ jobs:
         with:
           environment: production-avalon
   
-  # Job para desplegar a Zircon si se detecta esa etiqueta
   deploy-zircon:
     needs: deploy-if-merged
     if: contains(needs.deploy-if-merged.outputs.environments, 'production-zircon')
