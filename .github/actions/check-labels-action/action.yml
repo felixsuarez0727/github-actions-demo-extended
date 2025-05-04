@@ -11,7 +11,7 @@ inputs:
 
 outputs:
   environments:
-    description: 'List of environments to deploy'
+    description: 'JSON string array of environments to deploy'
 
 runs:
   using: 'composite'
@@ -25,24 +25,26 @@ runs:
 
         PR_LABELS=$(curl -s \
           -H "Authorization: Bearer $GITHUB_TOKEN" \
-          https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/labels)
+          "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/labels")
 
         echo "DEBUG: Labels JSON => $PR_LABELS"
         echo "DEBUG: PR_NUMBER = $PR_NUMBER"
 
-        ENVIRONMENTS=""
-
+        ENVIRONMENTS="[]"
+        
         if echo "$PR_LABELS" | grep -q '"name": "Avalon"'; then
-          ENVIRONMENTS="production-avalon"
+          ENVIRONMENTS=$(echo "$ENVIRONMENTS" | jq '. += ["production-avalon"]')
         fi
 
         if echo "$PR_LABELS" | grep -q '"name": "Zircon"'; then
-          ENVIRONMENTS="$ENVIRONMENTS production-zircon"
+          ENVIRONMENTS=$(echo "$ENVIRONMENTS" | jq '. += ["production-zircon"]')
         fi
 
-        if [[ -z "$ENVIRONMENTS" ]]; then
+        if [[ "$ENVIRONMENTS" == "[]" ]]; then
           echo "⚠️ No valid label found. Skipping deployment."
+        else
+          echo "Environments to deploy: $ENVIRONMENTS"
         fi
 
-        echo "Environments: $ENVIRONMENTS"
-        echo "environments=$ENVIRONMENTS" >> $GITHUB_OUTPUT
+        ENVIRONMENTS_ESCAPED=$(echo "$ENVIRONMENTS" | jq -c .)
+        echo "environments=$ENVIRONMENTS_ESCAPED" >> $GITHUB_OUTPUT
