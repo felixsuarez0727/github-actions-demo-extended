@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       environments: ${{ steps.check_labels.outputs.environments }}
-      matrix_json: ${{ steps.setup_matrix.outputs.matrix_json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,30 +23,17 @@ jobs:
           pr_number: ${{ github.event.pull_request.number }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Set up environments for matrix
-        id: setup_matrix
+      - name: Debug environments output
         run: |
-          echo "Environments found: ${{ steps.check_labels.outputs.environments }}"
-          if [[ "${{ steps.check_labels.outputs.environments }}" == "[]" || "${{ steps.check_labels.outputs.environments }}" == "" ]]; then
-            echo "No environments to deploy"
-            echo "matrix_json={\"include\":[]}" >> $GITHUB_OUTPUT
-          else
-            MATRIX=$(echo '${{ steps.check_labels.outputs.environments }}' | jq -c '{include: [.[] | {environment: .}]}')
-            echo "matrix_json=$MATRIX" >> $GITHUB_OUTPUT
-            echo "Matrix created: $MATRIX"
-          fi
-      
-      - name: Show environments to deploy
-        run: |
-          echo "Environments to deploy: ${{ steps.check_labels.outputs.environments }}"
-          echo "Matrix: ${{ steps.setup_matrix.outputs.matrix_json }}"
-      
+          echo "Environments output: ${{ steps.check_labels.outputs.environments }}"
+  
   deploy:
     needs: deploy-if-merged
-    if: needs.deploy-if-merged.outputs.environments != '[]' && needs.deploy-if-merged.outputs.environments != ''
+    if: needs.deploy-if-merged.outputs.environments != '[]'
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.deploy-if-merged.outputs.matrix_json) }}
+      matrix:
+        environment: ${{ fromJson(needs.deploy-if-merged.outputs.environments) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
