@@ -18,9 +18,10 @@ on:
 
           - name: Check PR Labels
             id: check_labels
-            uses: ./.github/actions/check-labels-action  
+            uses: ./.github/actions/check-labels-action
             with:
-              pr_number: ${{ github.event.pull_request.number }} 
+              pr_number: ${{ github.event.pull_request.number }}
+              github_token: ${{ secrets.GITHUB_TOKEN }}
 
       deploy:
         needs: check-labels
