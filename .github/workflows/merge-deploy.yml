@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-
   check-merge:
     runs-on: ubuntu-latest
     outputs:
@@ -38,6 +37,7 @@ jobs:
         uses: ./.github/actions/check-labels-action
         with:
           pr_number: ${{ github.event.pull_request.number }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Asegúrate de pasar el token correctamente
 
   deploy:
     needs: check-labels
