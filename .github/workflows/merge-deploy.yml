@@ -38,12 +38,13 @@ jobs:
 
   deploy:
     needs: check-labels
-    if: needs.check-merge.outputs.is_merge == 'true' && needs.check-labels.outputs.environments != '[]'
+    if: needs.check-merge.outputs.is_merge == 'true' && needs.check-labels.outputs.environments != '' && needs.check-labels.outputs.environments != '[]'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: ${{ fromJson(needs.check-labels.outputs.environments) }}
+        environment: ${{ needs.check-labels.outputs.environments != '' && needs.check-labels.outputs.environments != '[]' && fromJson(needs.check-labels.outputs.environments) || '["none"]' }}
     steps:
+      - if: matrix.environment != 'none'
       - name: Checkout code
         uses: actions/checkout@v3
         

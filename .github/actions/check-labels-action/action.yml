@@ -48,3 +48,5 @@ runs:
 
         ENVIRONMENTS_ESCAPED=$(echo "$ENVIRONMENTS" | jq -c .)
         echo "environments=$ENVIRONMENTS_ESCAPED" >> $GITHUB_OUTPUT
+        
+        echo "DEBUG: Setting environments output to: $ENVIRONMENTS_ESCAPED"
