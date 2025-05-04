@@ -8,9 +8,6 @@ on:
       - 'backend/**'
 
 jobs:
-  notify-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Notify backend team
-        run: echo "Changes detected in backend. Notify backend team via email."
+  call-notify:
+    uses: ./.github/workflows/notify.yml
+

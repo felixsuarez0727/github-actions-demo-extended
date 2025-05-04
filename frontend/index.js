@@ -1,1 +1,1 @@
-console.log("Demo Frontend!");
+console.log("Demo Frontend");
