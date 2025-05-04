@@ -25,20 +25,34 @@ jobs:
       
       - name: Debug environments output
         run: |
-          echo "Environments output: ${{ steps.check_labels.outputs.environments }}"
+          echo "Environments output value: '${{ steps.check_labels.outputs.environments }}'"
+          echo "Is empty: '${{ steps.check_labels.outputs.environments == '' }}'"
+          echo "Is []?: '${{ steps.check_labels.outputs.environments == '[]' }}'"
   
-  deploy:
+  # Job para desplegar a Avalon si se detecta esa etiqueta
+  deploy-avalon:
     needs: deploy-if-merged
-    if: needs.deploy-if-merged.outputs.environments != '[]'
+    if: contains(needs.deploy-if-merged.outputs.environments, 'production-avalon')
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: ${{ fromJson(needs.deploy-if-merged.outputs.environments) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: Deploy to ${{ matrix.environment }}
+      - name: Deploy to Production Avalon
         uses: ./.github/workflows/deploy-environment
         with:
-          environment: ${{ matrix.environment }}
+          environment: production-avalon
+  
+  # Job para desplegar a Zircon si se detecta esa etiqueta
+  deploy-zircon:
+    needs: deploy-if-merged
+    if: contains(needs.deploy-if-merged.outputs.environments, 'production-zircon')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Deploy to Production Zircon
+        uses: ./.github/workflows/deploy-environment
+        with:
+          environment: production-zircon
