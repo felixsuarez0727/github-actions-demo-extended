@@ -22,21 +22,13 @@ jobs:
         with:
           pr_number: ${{ github.event.pull_request.number }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Debug environments output
-        run: |
-          echo "Environments output value: '${{ steps.check_labels.outputs.environments }}'"
 
-  deploy-avalon:
+  deploy:
     needs: deploy-if-merged
-    if: contains(needs.deploy-if-merged.outputs.environments, 'production-avalon')
+    if: needs.deploy-if-merged.outputs.environments != '["none"]'
+    strategy:
+      matrix:
+        environment: ${{ fromJson(needs.deploy-if-merged.outputs.environments) }}
     uses: ./.github/workflows/deploy-environment.yml
     with:
-      environment: production-avalon
-
-  deploy-zircon:
-    needs: deploy-if-merged
-    if: contains(needs.deploy-if-merged.outputs.environments, 'production-zircon')
-    uses: ./.github/workflows/deploy-environment.yml
-    with:
-      environment: production-zircon
+      environment: ${{ matrix.environment }}
