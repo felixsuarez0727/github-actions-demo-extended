@@ -6,4 +6,4 @@ runs:
   using: "composite"
   steps:
     - run: echo "Changes detected. Notify team via email."
-
+      shell: bash
