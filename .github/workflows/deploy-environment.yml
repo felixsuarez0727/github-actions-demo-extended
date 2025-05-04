@@ -19,8 +19,7 @@ jobs:
       status: ${{ steps.set-status.outputs.value }}
     steps:
       - name: Deploy to ${{ inputs.environment }}
-        run: |
-          echo "🚀 Deploying to ${{ inputs.environment }} environment..."
+        run: echo "🚀 Deploying to ${{ inputs.environment }} environment..."
 
       - name: Set output status
         id: set-status

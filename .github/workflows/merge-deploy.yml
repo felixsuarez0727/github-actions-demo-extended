@@ -26,31 +26,17 @@ jobs:
       - name: Debug environments output
         run: |
           echo "Environments output value: '${{ steps.check_labels.outputs.environments }}'"
-          echo "Is empty: '${{ steps.check_labels.outputs.environments == '' }}'"
-          echo "Is []?: '${{ steps.check_labels.outputs.environments == '[]' }}'"
-  
+
   deploy-avalon:
     needs: deploy-if-merged
     if: contains(needs.deploy-if-merged.outputs.environments, 'production-avalon')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Deploy to Production Avalon
-        uses: ./.github/workflows/deploy-environment.yml
-        with:
-          environment: production-avalon
-  
+    uses: ./.github/workflows/deploy-environment.yml
+    with:
+      environment: production-avalon
+
   deploy-zircon:
     needs: deploy-if-merged
     if: contains(needs.deploy-if-merged.outputs.environments, 'production-zircon')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Deploy to Production Zircon
-        uses: ./.github/workflows/deploy-environment.yml
-        with:
-          environment: production-zircon
+    uses: ./.github/workflows/deploy-environment.yml
+    with:
+      environment: production-zircon
