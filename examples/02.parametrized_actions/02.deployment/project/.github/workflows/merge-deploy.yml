@@ -1,0 +1,41 @@
+name: Deploy to Production on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+    jobs:
+    
+      check-labels:
+        needs: check-merge
+        runs-on: ubuntu-latest
+        outputs:
+          environments: ${{ steps.check_labels.outputs.environments }}
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
+
+          - name: Check PR Labels
+            id: check_labels
+            uses: ./.github/actions/check-labels-action  
+            with:
+              pr_number: ${{ github.event.pull_request.number }} 
+
+      deploy:
+        needs: check-labels
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            environment: ${{ fromJson(needs.check-labels.outputs.environments) }}  
+        steps:
+          - name: Deploy to ${{ matrix.environment }}
+            uses: ./.github/workflows/deploy-on-merge.yml
+            with:
+              environment: ${{ matrix.environment }}
+
+      notify:
+        needs: deploy
+        runs-on: ubuntu-latest
+        steps:
+          - run: echo "✅ Deployment finished with ${{ needs.deploy.outputs.result }}"

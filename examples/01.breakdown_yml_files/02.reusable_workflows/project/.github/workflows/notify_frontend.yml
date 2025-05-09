@@ -1,0 +1,13 @@
+name: Notify Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+
+jobs:
+  call-notify:
+    uses: ./.github/workflows/notify.yml
+

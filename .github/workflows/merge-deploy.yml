@@ -1,0 +1,60 @@
+name: Deploy to Production on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  check-merge:
+    runs-on: ubuntu-latest
+    outputs:
+      is_merge: ${{ steps.check_merge.outputs.is_merge }}
+    steps:
+      - name: Check if this is a merge commit
+        id: check_merge
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == "Merge pull request"* ]]; then
+            echo "✅ This is a merge commit."
+            echo "is_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ This is NOT a merge commit."
+            echo "is_merge=false" >> $GITHUB_OUTPUT
+          fi
+
+  check-labels:
+    needs: check-merge
+    if: needs.check-merge.outputs.is_merge == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.check_labels.outputs.environments }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check PR Labels
+        id: check_labels
+        uses: ./.github/actions/check-labels-action
+        with:
+          pr_number: ${{ github.event.pull_request.number }}
+
+  deploy:
+    needs: check-labels
+    if: needs.check-merge.outputs.is_merge == 'true' && needs.check-labels.outputs.environments != ''
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: ${{ fromJson(needs.check-labels.outputs.environments) }}
+    steps:
+      - name: Deploy to ${{ matrix.environment }}
+        uses: ./.github/workflows/deploy-on-merge.yml
+        with:
+          environment: ${{ matrix.environment }}
+
+  notify:
+    needs: deploy
+    if: needs.check-merge.outputs.is_merge == 'true' && needs.check-labels.outputs.environments != ''
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ Deployment finished with ${{ needs.deploy.outputs.result }}"

@@ -1,0 +1,21 @@
+# For ussage with custom actions
+
+name: Notify Team
+description: Custom action to notify the team
+
+inputs:
+  message:
+    description: The message to notify the team
+    required: true
+
+outputs:
+  confirmation:
+    description: Confirmation message
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        echo "confirmation=Notification sent: ${{ inputs.message }}" >> $GITHUB_OUTPUT
+      shell: bash
+

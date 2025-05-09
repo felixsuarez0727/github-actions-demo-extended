@@ -1,0 +1,24 @@
+# For ussage with actions
+name: Notify Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - id: notify
+        uses: ./.github/actions/notify-team
+        with:
+          message: "Changes have been made on the backend"
+      
+      - run: echo "Result ${{ steps.notify.outputs.confirmation }}"
+        shell: bash
+
