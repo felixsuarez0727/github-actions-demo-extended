@@ -11,32 +11,27 @@ inputs:
 
 outputs:
   environments:
-    description: 'List of environments to deploy'
+    description: 'JSON string array of environments to deploy'
+    value: ${{ steps.pr_labels.outputs.environments }}
 
 runs:
   using: 'composite'
   steps:
     - name: Get PR labels from GitHub API
-      shell: bash
       id: pr_labels
+      shell: bash
       run: |
-        PR_LABELS=$(curl -s \
-          -H "Authorization: Bearer ${{ inputs.github_token }}" \
-          https://api.github.com/repos/${{ github.repository }}/issues/${{ inputs.pr_number }}/labels)
+        PR_NUMBER="${{ inputs.pr_number }}"
+        GITHUB_TOKEN="${{ inputs.github_token }}"
 
-        ENVIRONMENTS=""
+        PR_LABELS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/labels")
 
-        if echo "$PR_LABELS" | grep -q '"name": "Avalon"'; then
-          ENVIRONMENTS="production-avalon"
-        fi
+        ENVIRONMENTS=$(echo "$PR_LABELS" | jq -rc '[.[]?.name | ascii_downcase | 
+          select(test("avalon|zircon")) | "production-\(.)"]')
 
-        if echo "$PR_LABELS" | grep -q '"name": "Zircon"'; then
-          ENVIRONMENTS="$ENVIRONMENTS production-zircon"
-        fi
-
-        if [[ -z "$ENVIRONMENTS" ]]; then
-          echo "⚠️ No valid label found. Skipping deployment."
-        fi
+        ENVIRONMENTS=${ENVIRONMENTS:-'["none"]'}
 
         echo "Environments: $ENVIRONMENTS"
-        echo "::set-output name=environments::$ENVIRONMENTS"
+        echo "environments=$ENVIRONMENTS" >> $GITHUB_OUTPUT
+
